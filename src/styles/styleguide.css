@@ -1,0 +1,36 @@
+:root {
+  --collection-1-primary: rgba(255, 0, 0, 1);
+  --collection-1-secondary: rgba(111, 0, 0, 1);
+  --collection-1-black: rgba(26, 28, 28, 1);
+  --collection-1-white: rgba(249, 249, 249, 1);
+  --collection-1-grey: rgba(119, 119, 119, 1);
+  --collection-1-background: rgba(252, 245, 233, 1);
+  --colors-accents-blue: rgba(0, 136, 255, 1);
+  --colors-accents-green: rgba(52, 199, 89, 1);
+  --colors-accents-orange: rgba(255, 141, 40, 1);
+}
+
+[data-colors-mode="light"] {
+  --colors-accents-blue: rgba(0, 136, 255, 1);
+  --colors-accents-green: rgba(52, 199, 89, 1);
+  --colors-accents-orange: rgba(255, 141, 40, 1);
+}
+
+[data-colors-mode="dark"] {
+  --colors-accents-blue: rgba(0, 145, 255, 1);
+  --colors-accents-green: rgba(48, 209, 88, 1);
+  --colors-accents-orange: rgba(255, 146, 48, 1);
+}
+
+[data-colors-mode="IC-light"] {
+  --colors-accents-blue: rgba(30, 110, 244, 1);
+  --colors-accents-green: rgba(0, 137, 50, 1);
+  --colors-accents-orange: rgba(197, 83, 0, 1);
+}
+
+[data-colors-mode="IC-dark"] {
+  --colors-accents-blue: rgba(92, 184, 255, 1);
+  --colors-accents-green: rgba(74, 233, 104, 1);
+  --colors-accents-orange: rgba(255, 160, 86, 1);
+}
+  

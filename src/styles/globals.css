@@ -1,0 +1,54 @@
+@import url("https://cdnjs.cloudflare.com/ajax/libs/meyer-reset/2.0/reset.min.css");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  -webkit-font-smoothing: antialiased;
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0px;
+  height: 100%;
+}
+
+button:focus-visible {
+  outline: 2px solid #4a90e2 !important;
+  outline: -webkit-focus-ring-color auto 5px !important;
+}
+
+a {
+  text-decoration: none;
+}
+
+@font-face {
+  font-family: "Helvetica Neue-Bold";
+  src: local("Helvetica Neue Bold"), local("HelveticaNeue-Bold"), local("Helvetica Neue");
+  font-weight: 700;
+}
+
+@font-face {
+  font-family: "Helvetica Neue-Regular";
+  src: local("Helvetica Neue"), local("HelveticaNeue"), local("Arial");
+  font-weight: 400;
+}
+
+@font-face {
+  font-family: "Helvetica Light-Regular";
+  src: local("Helvetica Neue Light"), local("HelveticaNeue-Light"), local("Arial");
+  font-weight: 300;
+}
+
+@font-face {
+  font-family: "Helvetica Neue-Light";
+  src: local("Helvetica Neue Light"), local("HelveticaNeue-Light"), local("Arial");
+  font-weight: 300;
+}
+
+@font-face {
+  font-family: "Inter-Regular";
+  src: local("Inter"), local("Arial");
+  font-weight: 400;
+}
