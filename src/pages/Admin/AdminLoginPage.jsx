@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { login } from "../../services/api";
 
 export default function AdminLoginPage({ onLogin, onReturnHome }) {
   const [username,  setUsername]  = useState("");
@@ -20,12 +21,19 @@ export default function AdminLoginPage({ onLogin, onReturnHome }) {
     setError("");
 
     try {
-      await new Promise((r) => setTimeout(r, 1200));
+      const response = await login(username, password);
       
-      await onLogin?.({ username, password, remember }); 
+      if (remember) {
+        localStorage.setItem("rememberLogin", JSON.stringify({ username, password }));
+      } else {
+        localStorage.removeItem("rememberLogin");
+      }
+      
+      await onLogin?.(response); 
       
     } catch (err) {
-      setError("Username atau password salah. Silakan coba lagi.");
+      console.error("Login error:", err);
+      setError(err.message || "Username atau password salah. Silakan coba lagi.");
     } finally {
       setLoading(false);
     }

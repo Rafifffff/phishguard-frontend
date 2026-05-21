@@ -1,20 +1,61 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import TriageFilterBar    from "./TriageFilterBar";
 import TriageTable        from "./TriageTable";
 import TriageDetailPage   from "./TriageDetailPage";
+import { getReports, getResponses } from "../../../services/api";
 
 export default function TriagePage() {
+  const [reports, setReports] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState({
     sort: "Default",
     hideSelesai: false,
     query: "",
   });
   const [selectedTicket, setSelectedTicket] = useState(null);
+
+  const fetchReports = async () => {
+    try {
+      setLoading(true);
+      const [reportsRes, responsesRes] = await Promise.all([
+        getReports(),
+        getResponses()
+      ]);
+      
+      let actualReports = reportsRes?.data || reportsRes || [];
+      const actualResponses = responsesRes?.data || responsesRes || [];
+
+      // Stitch responses into reports because backend does not eager load admin_actions
+      actualReports = actualReports.map(report => {
+        const reportResponses = actualResponses.filter(res => res.report_id === report.id);
+        // Sort by created_at just in case
+        reportResponses.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+        return {
+          ...report,
+          admin_actions: reportResponses
+        };
+      });
+
+      setReports(actualReports);
+    } catch (err) {
+      console.error("Failed to fetch reports", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchReports();
+  }, []);
+
   if (selectedTicket) {
     return (
       <TriageDetailPage
         ticket={selectedTicket}
-        onBack={() => setSelectedTicket(null)}
+        onBack={() => {
+          setSelectedTicket(null);
+          fetchReports();
+        }}
       />
     );
   }
@@ -73,7 +114,7 @@ export default function TriagePage() {
 
         <TriageFilterBar filters={filters} setFilters={setFilters} />
 
-        <TriageTable filters={filters} onViewTicket={setSelectedTicket} />
+        <TriageTable reports={reports} loading={loading} filters={filters} onViewTicket={setSelectedTicket} />
       </section>
     </>
   );

@@ -64,7 +64,7 @@ const ArrowIcon = () => (
   </svg>
 );
 
-const API_URL = "https://be-phisguard-production.up.railway.app/api/reports";
+const API_URL = "https://adorable-tranquility-production-f56c.up.railway.app/api/report";
 
 export default function TicketHistoryTable({ maxRows = 6, onViewTicket }) {
   const ROW_HEIGHT  = 52;

@@ -3,22 +3,16 @@ import StatCard from "../ui/StatCard";
 const DEFAULT_STATS = [
   {
     label: 'Total penggunaan "Message Checker"',
-    value: "12.847",
+    value: "...",
     iconSrc: "img/vector-13.svg",
     iconBg: "bg-[rgba(0,136,255,1)]",
   },
   {
     label: "Total laporan diselesaikan",
-    value: "3.426",
+    value: "...",
     iconSrc: "img/vector-2.svg",
     iconBg: "bg-[rgba(52,199,89,1)]",
-  },
-  {
-    label: "Akses 1 minggu terakhir",
-    value: "1.845",
-    iconSrc: "img/union.svg",
-    iconBg: "bg-[rgba(255,141,40,1)]",
-  },
+  }
 ];
 
 export default function StatsSection({ stats = DEFAULT_STATS }) {

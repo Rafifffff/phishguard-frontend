@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo } from "react";
 import ArticleFilter     from "../../Edukasi/ArticleFilter";
 import ArticleCard       from "../../Edukasi/ArticleCard";
 
-const API_URL = "https://be-phisguard-production.up.railway.app/api/articles";
+const API_URL = "https://adorable-tranquility-production-f56c.up.railway.app/api/articles";
 
 export default function EduManagerPage({ onNavigate, onAddArticle, onViewArticle }) {
   const [query,    setQuery]    = useState("");
@@ -39,11 +39,11 @@ export default function EduManagerPage({ onNavigate, onAddArticle, onViewArticle
   const filtered = useMemo(() => {
     const q = query.toLowerCase().trim();
     return articles.filter((a) => {
-      const cat     = a.kategori_artikel || "";
-      const title   = a.judul || "";
-      const excerpt = a.rangkuman || "";
+      const cat     = (a.kategori_artikel || a.category || "").trim();
+      const title   = (a.judul || a.title || "").trim();
+      const excerpt = (a.rangkuman || a.excerpt || "").trim();
 
-      const matchCat = category === "" || cat === category;
+      const matchCat = category === "" || cat.toLowerCase() === category.toLowerCase();
       const matchQ   = q === "" ||
         title.toLowerCase().includes(q) ||
         excerpt.toLowerCase().includes(q) ||

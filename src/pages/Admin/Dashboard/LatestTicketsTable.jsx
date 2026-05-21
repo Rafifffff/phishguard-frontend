@@ -1,48 +1,5 @@
 import React from "react";
 
-const TICKETS = [
-  {
-    id:       "PH-20260416-2B6F9D55",
-    status:   "Submitted",
-    channel:  "Email",
-    risk:     87,
-    priority: "High",
-    dibuat:   "16 Apr 2026",
-  },
-  {
-    id:       "PH-20260415-77AE219C",
-    status:   "Confirmed",
-    channel:  "Telegram",
-    risk:     24,
-    priority: "Low",
-    dibuat:   "15 Apr 2026",
-  },
-  {
-    id:       "PH-20260414-C8347B12",
-    status:   "In review",
-    channel:  "WhatsApp",
-    risk:     68,
-    priority: "Medium",
-    dibuat:   "14 Apr 2026",
-  },
-  {
-    id:       "PH-20260412-2D84AF76",
-    status:   "Confirmed",
-    channel:  "Facebook",
-    risk:     31,
-    priority: "Low",
-    dibuat:   "12 Apr 2026",
-  },
-  {
-    id:       "PH-20260412-5F91BE32",
-    status:   "Closed",
-    channel:  "Email",
-    risk:     12,
-    priority: "Low",
-    dibuat:   "12 Apr 2026",
-  },
-];
-
 const StatusIcon = ({ status }) => {
   switch (status) {
     case "Submitted":
@@ -83,21 +40,41 @@ const StatusIcon = ({ status }) => {
 
 const ArrowIcon = () => (
   <svg className="w-[10.06px] h-[17.6px]" viewBox="0 0 10 18" fill="none">
-    <path d="M1 1L9 9L1 17" stroke="#FF0000" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+    <path d="M1 1L9 9L1 17" stroke="#1c1c1c" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
   </svg>
 );
 
 const COLUMNS = [
-  { key: "id",       label: "Ticket ID",    className: "w-[20%] min-w-0 text-left" },
-  { key: "status",   label: "Status",       className: "w-[16%] min-w-0 text-left" },
-  { key: "channel",  label: "Channel Chat", className: "w-[15%] min-w-0 text-left" },
-  { key: "risk",     label: "Risk",         className: "w-[10%] min-w-0 text-center" },
-  { key: "priority", label: "Priority",     className: "w-[14%] min-w-0 text-left" },
-  { key: "dibuat",   label: "Dibuat",       className: "w-[20%] min-w-0 text-right pr-4" },
-  { key: "action",   label: "",             className: "w-[5%] min-w-0 text-center" },
+  { key: "id",       label: "Ticket ID",    className: "text-left w-[15%]" },
+  { key: "status",   label: "Status",       className: "text-left w-[15%]" },
+  { key: "channel",  label: "Channel",      className: "text-left w-[15%]" },
+  { key: "risk",     label: "Risk Score",   className: "text-center w-[15%]" },
+  { key: "priority", label: "Priority",     className: "text-left w-[15%]" },
+  { key: "dibuat",   label: "Date",         className: "text-right w-[15%]" },
+  { key: "action",   label: "",             className: "text-center w-[10%]" },
 ];
 
-export default function LatestTicketsTable() {
+export default function LatestTicketsTable({ reports = [] }) {
+  // Map API reports to the format expected by the table
+  const getStatus = (report) => {
+    if (!report.admin_actions || report.admin_actions.length === 0) return "Submitted";
+    const lastAction = report.admin_actions[report.admin_actions.length - 1];
+    return lastAction.hasil_keputusan === "Confirm Valid Phishing" || lastAction.selesaikanTiket ? "Closed" : "In review";
+  };
+
+  const getPriority = (report) => {
+    return report.ml_result?.priority ? report.ml_result.priority.charAt(0).toUpperCase() + report.ml_result.priority.slice(1) : "Medium";
+  };
+
+  const formattedTickets = reports.slice(0, 5).map(r => ({
+    id: r.ticket || `PH-${r.id}`,
+    status: getStatus(r),
+    channel: r.channel_chat || "Unknown",
+    risk: r.ml_result?.risk_score || 0,
+    priority: getPriority(r),
+    dibuat: new Date(r.created_at).toLocaleDateString("id-ID", { day: 'numeric', month: 'short', year: 'numeric' })
+  }));
+
   return (
     <section
       className="flex flex-col items-start gap-2.5 relative self-stretch w-full flex-[0_0_auto] bg-transparent"
@@ -143,7 +120,7 @@ export default function LatestTicketsTable() {
             </thead>
 
             <tbody>
-              {TICKETS.length === 0 ? (
+              {formattedTickets.length === 0 ? (
                 <tr>
                   <td colSpan={COLUMNS.length} className="py-12 text-center">
                     <span className="[font-family:'Helvetica_Neue-Regular',Helvetica] text-base text-[#9b9b9b]">
@@ -152,7 +129,7 @@ export default function LatestTicketsTable() {
                   </td>
                 </tr>
               ) : (
-                TICKETS.map((ticket, idx) => (
+                formattedTickets.map((ticket, idx) => (
                   <tr
                     key={ticket.id}
                     className={`transition-colors duration-150 hover:bg-[rgba(252,245,233,0.6)] ${idx % 2 === 0 ? "" : "bg-[rgba(252,245,233,0.25)]"}`}

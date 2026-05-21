@@ -122,9 +122,9 @@ function applyFilters(tickets, filters) {
   }
 
   if (filters.sort === "Terbaru") {
-    result.sort((a, b) => new Date(b.dibuat) - new Date(a.dibuat));
+    result.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
   } else if (filters.sort === "Terlama") {
-    result.sort((a, b) => new Date(a.dibuat) - new Date(b.dibuat));
+    result.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
   } else if (filters.sort === "Status A-Z") {
     result.sort((a, b) => a.status.localeCompare(b.status));
   }
@@ -142,8 +142,34 @@ const COLUMNS = [
   { key: "action",   label: "",             className: "w-[5%] min-w-0 text-center" }, // Kolom Panah
 ];
 
-export default function TriageTable({ filters, onViewTicket }) {
-  const tickets = applyFilters(ALL_TICKETS, filters);
+export default function TriageTable({ reports = [], filters, onViewTicket, loading }) {
+  const getStatus = (report) => {
+    if (!report.admin_actions || report.admin_actions.length === 0) return "Submitted";
+    const lastAction = report.admin_actions[report.admin_actions.length - 1];
+    const isClosed = 
+      lastAction.hasil_keputusan === "Confirm Valid Phishing" || 
+      lastAction.hasil_keputusan === "False Positive" || 
+      lastAction.selesaikanTiket || 
+      lastAction.selesaikan_tiket;
+    return isClosed ? "Closed" : "In review";
+  };
+
+  const getPriority = (report) => {
+    return report.ml_result?.priority ? report.ml_result.priority.charAt(0).toUpperCase() + report.ml_result.priority.slice(1) : "Medium";
+  };
+
+  const formattedTickets = reports.map(r => ({
+    id: r.ticket || `PH-${r.id}`,
+    originalReport: r,
+    status: getStatus(r),
+    channel: r.channel_chat || "Unknown",
+    risk: r.ml_result?.risk_score || 0,
+    priority: getPriority(r),
+    dibuat: new Date(r.created_at).toLocaleDateString("id-ID", { day: 'numeric', month: 'short', year: 'numeric' }),
+    created_at: r.created_at
+  }));
+
+  const tickets = applyFilters(formattedTickets, filters);
 
   return (
     <div className="w-full overflow-x-auto">
@@ -229,7 +255,7 @@ export default function TriageTable({ filters, onViewTicket }) {
 
                 <td className="py-3 align-middle text-center">
                   <button
-                    onClick={() => onViewTicket && onViewTicket(ticket)}
+                    onClick={() => onViewTicket && onViewTicket(ticket.originalReport)}
                     className="p-2 inline-flex items-center justify-center hover:opacity-60 hover:scale-110 transition-all cursor-pointer bg-transparent border-none"
                     aria-label={`Lihat tiket ${ticket.id}`}
                   >

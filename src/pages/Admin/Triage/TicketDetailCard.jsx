@@ -133,13 +133,10 @@ export default function TicketDetailCard({ ticket }) {
           </div>
 
           <div className="flex flex-col items-start gap-2 relative self-stretch w-full flex-[0_0_auto]">
-            <label htmlFor="upload-screenshot" className="flex items-start gap-2.5 relative self-stretch w-full flex-[0_0_auto]">
-              <span className="relative flex items-center w-fit mt-[-1.00px] [font-family:'Helvetica_Neue-Regular',Helvetica] font-normal text-collection-1-black text-2xl tracking-[0] leading-5 whitespace-nowrap">Upload screenshot</span>
+            <label htmlFor="kontak" className="flex items-start gap-2.5 relative self-stretch w-full flex-[0_0_auto]">
+              <span className="relative flex items-center w-fit mt-[-1.00px] [font-family:'Helvetica_Neue-Regular',Helvetica] font-normal text-collection-1-black text-2xl tracking-[0] leading-5 whitespace-nowrap">Kontak</span>
             </label>
-            <div className="h-[38px] items-center px-4 py-2 self-stretch w-full ml-[-1.00px] bg-collection-1-white border border-solid border-collection-1-grey flex gap-2.5 relative mb-[-1.00px] mr-[-1.00px] rounded-[5px]">
-              <img className="relative self-stretch aspect-[1]" src="img/icon-screenshot.svg" alt="" />
-              <input id="upload-screenshot" name="upload-screenshot" type="text" defaultValue={t.uploadScreenshot} readOnly className="relative flex items-center flex-1 [font-family:'Helvetica_Neue-Regular',Helvetica] font-normal text-collection-1-black text-base tracking-[-0.35px] leading-5 bg-transparent outline-none" />
-            </div>
+            <input id="kontak" name="kontak" type="text" defaultValue={t.kontak} readOnly className="h-[38px] items-center px-4 py-2 self-stretch w-full ml-[-1.00px] bg-collection-1-white border border-solid border-collection-1-grey flex gap-2.5 relative mb-[-1.00px] mr-[-1.00px] rounded-[5px] [font-family:'Helvetica_Neue-Regular',Helvetica] font-normal text-collection-1-black text-base tracking-[-0.35px] leading-5 outline-none" />
           </div>
 
           <div className="flex flex-col items-start gap-2 relative self-stretch w-full flex-[0_0_auto]">

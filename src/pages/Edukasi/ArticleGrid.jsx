@@ -1,9 +1,9 @@
 import { useState, useEffect, useMemo } from "react";
 import ArticleCard   from "./ArticleCard";
 import ArticleFilter from "./ArticleFilter";
+import { getArticles } from "../../services/api";
 
 const CATEGORIES = ["Tips", "Modus", "Update Kasus"];
-const API_URL = "https://be-phisguard-production.up.railway.app/api/articles";
 
 export default function ArticleGrid({ onRead }) {
   const [query,    setQuery]    = useState("");
@@ -19,20 +19,12 @@ export default function ArticleGrid({ onRead }) {
       setError(null);
       
       try {
-        const response = await fetch(API_URL);
-        
-        if (!response.ok) {
-          throw new Error(`Gagal mengambil data! Status: ${response.status}`);
-        }
-        
-        const data = await response.json();
-        
+        const data = await getArticles();
         const articlesData = Array.isArray(data) ? data : data.data || [];
-        
         setArticles(articlesData);
       } catch (err) {
         console.error("API Fetch Error:", err);
-        setError("Gagal memuat artikel dari server. Periksa koneksi internet Anda.");
+        setError(err.message || "Gagal memuat artikel dari server. Periksa koneksi internet Anda.");
       } finally {
         setIsLoading(false);
       }

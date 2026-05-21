@@ -1,8 +1,7 @@
 import { useState }        from "react";
 import LaporForm           from "./LaporForm";
 import ConfirmationPopup   from "./ConfirmationPopup";
-
-const API_URL = "https://be-phisguard-production.up.railway.app/api/report";
+import { submitReport }    from "../../services/api";
 
 export default function LaporPage({ onSuccess }) {
   const [step,      setStep]     = useState("form");
@@ -20,37 +19,24 @@ export default function LaporPage({ onSuccess }) {
     setLoading(true);
 
     const apiPayload = {
-      reporter_name: formData.nama,
-      channel_chat: formData.channel,
-      sender_account: formData.senderAccount || "-", 
-      chat_text: formData.teksChat,
+      reporter_name: formData.reporter_name,
+      channel_chat: formData.channel_chat,
+      sender_account: formData.sender_account || "-", 
+      chat_text: formData.chat_text,
       url: formData.url || "-",
-      interaksi: formData.interaksi === "sudah",
-      incident_summary: `[Waktu Kejadian: ${formData.tanggal || "-"}] - Kontak Pelapor: ${formData.kontak}`
+      region: formData.region,
+      interaksi: formData.interaksi,
+      incident_summary: formData.incident_summary || "-"
     };
 
     try {
-      const response = await fetch(API_URL, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Accept": "application/json"
-        },
-        body: JSON.stringify(apiPayload)
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        console.error("Detail Error API:", errorData);
-        throw new Error("Gagal mengirim laporan ke server. Pastikan semua data wajib terisi.");
-      }
-
+      await submitReport(apiPayload);
       if (onSuccess) {
         onSuccess(formData);
       }
     } catch (error) {
       console.error("Terjadi Kesalahan:", error);
-      alert(error.message);
+      alert(error.message || "Gagal mengirim laporan ke server.");
     } finally {
       setLoading(false);
     }

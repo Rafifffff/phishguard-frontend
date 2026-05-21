@@ -1,4 +1,5 @@
 import { useState }        from "react";
+import { submitReport }    from "../../services/api";
 import MessageCheckerForm  from "./MessageCheckerForm";
 import ReportCTABanner     from "../../components/shared/ReportCTABanner";
 
@@ -7,13 +8,30 @@ export default function MessageCheckerPage({ initialMessage = "", onNavigate, on
 
   const handleAnalyze = async (formData) => {
     setLoading(true);
-    await new Promise((r) => setTimeout(r, 1500));
-    setLoading(false);
-    
-    if (onSubmitCheck) {
-      onSubmitCheck(formData);
-    } else if (onNavigate) {
-      onNavigate("result");
+    try {
+      const apiPayload = {
+        reporter_name: "Pengguna Anonim",
+        channel_chat: formData.channel || "Lainnya",
+        sender_account: formData.sender || "-", 
+        chat_text: formData.message,
+        url: formData.url || "-",
+        region: "-",
+        interaksi: false,
+        incident_summary: "Pengecekan mandiri via Message Checker"
+      };
+
+      const response = await submitReport(apiPayload);
+      
+      if (onSubmitCheck) {
+        onSubmitCheck({ formData, backendResult: response });
+      } else if (onNavigate) {
+        onNavigate("result");
+      }
+    } catch (error) {
+      console.error("Gagal melakukan pengecekan:", error);
+      alert(error.message || "Gagal melakukan pengecekan.");
+    } finally {
+      setLoading(false);
     }
   };
 

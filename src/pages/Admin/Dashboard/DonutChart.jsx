@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-const CHANNELS = [
+const DEFAULT_CHANNELS = [
   { name: "SMS", value: 27, color: "#007AFF" },
   { name: "Whatsapp", value: 38, color: "#25D366" },
   { name: "Email", value: 20, color: "#FF9500" },
@@ -18,10 +18,10 @@ function DonutSVG({ data, hovered, setHovered }) {
 
   let cumulative = 0;
   const slices = data.map((d) => {
-    const pct = d.value / total;
+    const pct = total > 0 ? d.value / total : 0;
     const dash = Math.max(pct * circumference - gap, 0);
     const space = circumference - dash;
-    const rotation = (cumulative / total) * 360 - 90;
+    const rotation = total > 0 ? (cumulative / total) * 360 - 90 : -90;
     cumulative += d.value;
     return { ...d, dash, space, rotation };
   });
@@ -37,7 +37,7 @@ function DonutSVG({ data, hovered, setHovered }) {
           cy={cy}
           r={r}
           fill="none"
-          stroke={s.color}
+          stroke={s.color || "#8E8E93"}
           strokeWidth={hovered === i ? 34 : 26}
           strokeDasharray={`${s.dash} ${s.space}`}
           transform={`rotate(${s.rotation} ${cx} ${cy})`}
@@ -51,10 +51,10 @@ function DonutSVG({ data, hovered, setHovered }) {
         />
       ))}
 
-      {hovered !== null ? (
+      {hovered !== null && data[hovered] ? (
         <>
           <text x={cx} y={cy - 8} textAnchor="middle" fill="#1c1c1c" fontSize={18} fontWeight="bold" fontFamily="Helvetica Neue, Helvetica, sans-serif">
-            {data[hovered].value}%
+            {data[hovered].value}
           </text>
           <text x={cx} y={cy + 10} textAnchor="middle" fill="#6b6b6b" fontSize={11} fontFamily="Helvetica Neue, Helvetica, sans-serif">
             {data[hovered].name}
@@ -63,7 +63,7 @@ function DonutSVG({ data, hovered, setHovered }) {
       ) : (
         <>
           <text x={cx} y={cy - 8} textAnchor="middle" fill="#1c1c1c" fontSize={18} fontWeight="bold" fontFamily="Helvetica Neue, Helvetica, sans-serif">
-            {total}%
+            {total}
           </text>
           <text x={cx} y={cy + 10} textAnchor="middle" fill="#6b6b6b" fontSize={11} fontFamily="Helvetica Neue, Helvetica, sans-serif">
             Total
@@ -77,12 +77,27 @@ function DonutSVG({ data, hovered, setHovered }) {
 const LegendDot = ({ color }) => (
   <span
     className="inline-block w-3 h-3 rounded-full flex-shrink-0"
-    style={{ backgroundColor: color }}
+    style={{ backgroundColor: color || "#8E8E93" }}
   />
 );
 
-export default function DonutChart() {
+export default function DonutChart({ data }) {
   const [hovered, setHovered] = useState(null);
+
+  // Use mapped data or fallback
+  const chartData = data && data.length > 0 ? data.map(item => ({
+    name: item.channel_chat || item.name || "Unknown",
+    value: item.total || item.value || 0,
+    color: item.color || "#8E8E93" // Ideally API or frontend determines color
+  })) : DEFAULT_CHANNELS;
+
+  // Add colors if missing (simple fallback)
+  const colors = ["#007AFF", "#25D366", "#FF9500", "#1877F2", "#8E8E93"];
+  chartData.forEach((d, i) => {
+    if (!d.color || d.color === "#8E8E93") {
+      d.color = colors[i % colors.length];
+    }
+  });
 
   return (
     <article className="flex flex-col items-start gap-8 p-8 relative flex-1 self-stretch grow bg-white rounded-[20px] overflow-hidden shadow-[0px_4px_4px_#00000040]">
@@ -92,11 +107,11 @@ export default function DonutChart() {
       </h2>
 
       <div className="relative flex-1 self-stretch w-full grow flex items-center justify-center">
-        <DonutSVG data={CHANNELS} hovered={hovered} setHovered={setHovered} />
+        <DonutSVG data={chartData} hovered={hovered} setHovered={setHovered} />
       </div>
 
       <div className="flex w-full flex-wrap items-center justify-between gap-2 px-4 py-0 relative flex-[0_0_auto]">
-        {CHANNELS.map((ch, i) => (
+        {chartData.map((ch, i) => (
           <div
             key={ch.name}
             className="flex items-center gap-1.5 cursor-pointer"

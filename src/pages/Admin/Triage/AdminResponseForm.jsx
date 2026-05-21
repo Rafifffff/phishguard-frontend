@@ -1,6 +1,7 @@
 import { useState } from "react";
 import ConfirmResponsePopup from "./ConfirmResponsePopup"; 
 import FollowUpPopup from "./FollowUpPopup";               
+import { createAdminResponse } from "../../../services/api";
 
 const KATEGORI_OPTIONS = [
   "Mengatasnamakan Bank",
@@ -40,13 +41,30 @@ export default function AdminResponseForm({ ticketId, kontak = "081377894521", o
 
   const handleConfirmSubmit = async () => {
     setLoading(true);
-    const payload = { ticketId, hasilKeputusan, kategori, catatanAdmin, selesaikanTiket };
+
+    const hasilMapping = {
+      "confirm-valid-phishing": "Confirm Valid Phishing",
+      "false-positive": "False Positive",
+      "need-more-info": "Need More Info"
+    };
+
+    const payload = { 
+      report_id: ticketId,
+      hasil_keputusan: hasilMapping[hasilKeputusan], 
+      kategori, 
+      catatan: catatanAdmin,
+    };
     
-    await new Promise((r) => setTimeout(r, 1500));
-    if (onSave) onSave(payload);
-    
-    setLoading(false);
-    setStep("followup"); 
+    try {
+      await createAdminResponse(payload);
+      if (onSave) onSave({ ...payload, selesaikanTiket });
+      setStep("followup"); 
+    } catch (err) {
+      console.error(err);
+      alert("Gagal menyimpan respon admin: " + (err.message || "Terjadi kesalahan"));
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleCloseFollowUp = () => {

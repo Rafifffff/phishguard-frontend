@@ -19,33 +19,35 @@ const CHANNEL_OPTIONS = [
 ];
 
 export default function LaporForm({ onSubmit, loading = false }) {
-  const [nama,           setNama]          = useState("");
-  const [channel,        setChannel]       = useState("");
-  const [senderAccount,  setSenderAccount] = useState(""); 
-  const [tanggal,        setTanggal]       = useState("");
-  const [interaksi,      setInteraksi]     = useState("sudah");
-  const [url,            setUrl]           = useState("");
-  const [teksChat,       setTeksChat]      = useState("");
-  const [kontak,         setKontak]        = useState("");
-  const [touched, setTouched] = useState(false);
+  const [reporter_name,    setReporter_name]    = useState("");
+  const [channel_chat,     setChannel_chat]     = useState("");
+  const [sender_account,   setSender_account]   = useState(""); 
+  const [tanggal,          setTanggal]          = useState("");
+  const [interaksi,        setInteraksi]        = useState(true);
+  const [url,              setUrl]              = useState("");
+  const [chat_text,        setChat_text]        = useState("");
+  const [region,           setRegion]           = useState("");
+  const [touched,          setTouched]          = useState(false);
+
+  const incident_summary = `[Waktu Kejadian: ${tanggal || "-"}]`;
 
   const errors = {
-    nama:          touched && nama.trim() === "",
-    channel:       touched && channel === "",
-    senderAccount: touched && senderAccount.trim() === "",
-    teksChat:      touched && teksChat.trim() === "",
-    kontak:        touched && kontak.trim() === "",
+    reporter_name:   touched && reporter_name.trim() === "",
+    channel_chat:    touched && channel_chat === "",
+    sender_account:  touched && sender_account.trim() === "",
+    chat_text:       touched && chat_text.trim() === "",
+    region:          touched && region.trim() === "",
   };
 
   const handleSubmit = () => {
     setTouched(true);
 
     const isFormIncomplete = 
-      nama.trim() === "" || 
-      channel === "" || 
-      senderAccount.trim() === "" || 
-      teksChat.trim() === "" || 
-      kontak.trim() === "";
+      reporter_name.trim() === "" || 
+      channel_chat === "" || 
+      sender_account.trim() === "" || 
+      chat_text.trim() === "" || 
+      region.trim() === "";
 
     if (isFormIncomplete) {
       return; 
@@ -53,14 +55,14 @@ export default function LaporForm({ onSubmit, loading = false }) {
 
     if (onSubmit) {
       onSubmit({ 
-        nama, 
-        channel, 
-        senderAccount, 
-        tanggal, 
-        interaksi, 
-        url, 
-        teksChat, 
-        kontak 
+        channel_chat,
+        sender_account,
+        chat_text,
+        url,
+        reporter_name,
+        region,
+        interaksi,
+        incident_summary
       });
     }
   };
@@ -91,52 +93,48 @@ export default function LaporForm({ onSubmit, loading = false }) {
 
           <FormField label="Nama Pelapor" required>
             <Input
-              value={nama}
-              onChange={(e) => setNama(e.target.value)}
+              value={reporter_name}
+              onChange={(e) => setReporter_name(e.target.value)}
               placeholder="Cth. Budi Setiawan"
-              className={errors.nama ? "border-[rgba(255,0,0,1)] ring-1 ring-[rgba(255,0,0,1)]" : ""}
+              className={errors.reporter_name ? "border-[rgba(255,0,0,1)] ring-1 ring-[rgba(255,0,0,1)]" : ""}
             />
-            {errors.nama && <p className="text-[rgba(255,0,0,1)] text-sm [font-family:'Helvetica_Neue-Regular',Helvetica] mt-1">Nama pelapor wajib diisi.</p>}
+            {errors.reporter_name && <p className="text-[rgba(255,0,0,1)] text-sm [font-family:'Helvetica_Neue-Regular',Helvetica] mt-1">Nama pelapor wajib diisi.</p>}
           </FormField>
 
           <FormField label="Channel Chat" required>
             <Select
-              value={channel}
-              onChange={(e) => setChannel(e.target.value)}
+              value={channel_chat}
+              onChange={(e) => setChannel_chat(e.target.value)}
               placeholder="— Pilih channel chat —"
               options={CHANNEL_OPTIONS}
-              className={errors.channel ? "border-[rgba(255,0,0,1)] ring-1 ring-[rgba(255,0,0,1)]" : ""}
+              className={errors.channel_chat ? "border-[rgba(255,0,0,1)] ring-1 ring-[rgba(255,0,0,1)]" : ""}
             />
-            {errors.channel && <p className="text-[rgba(255,0,0,1)] text-sm [font-family:'Helvetica_Neue-Regular',Helvetica] mt-1">Channel chat wajib dipilih.</p>}
+            {errors.channel_chat && <p className="text-[rgba(255,0,0,1)] text-sm [font-family:'Helvetica_Neue-Regular',Helvetica] mt-1">Channel chat wajib dipilih.</p>}
           </FormField>
 
           <FormField label="Nomor / Akun Pengirim (Penipu)" required>
             <Input
-              value={senderAccount}
-              onChange={(e) => setSenderAccount(e.target.value)}
+              value={sender_account}
+              onChange={(e) => setSender_account(e.target.value)}
               placeholder="Cth. 081234567890 / penipu@email.com"
-              className={errors.senderAccount ? "border-[rgba(255,0,0,1)] ring-1 ring-[rgba(255,0,0,1)]" : ""}
+              className={errors.sender_account ? "border-[rgba(255,0,0,1)] ring-1 ring-[rgba(255,0,0,1)]" : ""}
             />
-            {errors.senderAccount && <p className="text-[rgba(255,0,0,1)] text-sm [font-family:'Helvetica_Neue-Regular',Helvetica] mt-1">Akun pengirim wajib diisi.</p>}
-          </FormField>
-
-          <FormField label="Waktu kejadian">
-            <DatePicker value={tanggal} onChange={setTanggal} />
+            {errors.sender_account && <p className="text-[rgba(255,0,0,1)] text-sm [font-family:'Helvetica_Neue-Regular',Helvetica] mt-1">Akun pengirim wajib diisi.</p>}
           </FormField>
 
           <FormField label="Apakah Anda sudah berinteraksi dengan link/pesan ini?" required>
             <div className="flex items-center gap-4 relative self-stretch w-full flex-[0_0_auto]">
               <RadioOption
                 label="Sudah"
-                value="sudah"
-                selected={interaksi === "sudah"}
-                onChange={setInteraksi}
+                value={true}
+                selected={interaksi === true}
+                onChange={() => setInteraksi(true)}
               />
               <RadioOption
                 label="Belum"
-                value="belum"
-                selected={interaksi === "belum"}
-                onChange={setInteraksi}
+                value={false}
+                selected={interaksi === false}
+                onChange={() => setInteraksi(false)}
               />
             </div>
           </FormField>
@@ -155,12 +153,12 @@ export default function LaporForm({ onSubmit, loading = false }) {
 
           <FormField label="Teks Chat" required>
             <Textarea
-              value={teksChat}
-              onChange={(e) => setTeksChat(e.target.value)}
+              value={chat_text}
+              onChange={(e) => setChat_text(e.target.value)}
               placeholder="Masukkan pesan lengkap disini ..."
               className={`min-h-[260px] resize-none ${errors.teksChat ? "border-[rgba(255,0,0,1)] ring-1 ring-[rgba(255,0,0,1)]" : ""}`}
             />
-            {errors.teksChat && <p className="text-[rgba(255,0,0,1)] text-sm [font-family:'Helvetica_Neue-Regular',Helvetica] mt-1">Teks chat wajib diisi.</p>}
+            {errors.chat_text && <p className="text-[rgba(255,0,0,1)] text-sm [font-family:'Helvetica_Neue-Regular',Helvetica] mt-1">Teks chat wajib diisi.</p>}
           </FormField>
         </div>
       </div>
@@ -173,12 +171,12 @@ export default function LaporForm({ onSubmit, loading = false }) {
           <div className="flex flex-col items-start gap-6 sm:gap-8 relative flex-1 grow w-full">
             <FormField label="Kontak Anda untuk dihubungi (Email / No. HP)" required>
               <Input
-                value={kontak}
-                onChange={(e) => setKontak(e.target.value)}
+                value={region}
+                onChange={(e) => setRegion(e.target.value)}
                 placeholder="Cth. email_anda@gmail.com"
-                className={errors.kontak ? "border-[rgba(255,0,0,1)] ring-1 ring-[rgba(255,0,0,1)]" : ""}
+                className={errors.region ? "border-[rgba(255,0,0,1)] ring-1 ring-[rgba(255,0,0,1)]" : ""}
               />
-              {errors.kontak && <p className="text-[rgba(255,0,0,1)] text-sm [font-family:'Helvetica_Neue-Regular',Helvetica] mt-1">Kontak wajib diisi.</p>}
+              {errors.region && <p className="text-[rgba(255,0,0,1)] text-sm [font-family:'Helvetica_Neue-Regular',Helvetica] mt-1">Kontak wajib diisi.</p>}
             </FormField>
           </div>
         </div>

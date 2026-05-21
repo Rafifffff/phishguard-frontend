@@ -1,51 +1,33 @@
 import { useEffect, useState } from "react";
 
-const CARDS = [
-  {
-    label: "Laporan hari ini",
-    value: 14,
-    bg: "#007AFF",
-    icon: <img className="w-10 h-10 object-contain" src="img/logo-laporan.svg" alt="" />,
-  },
-  {
-    label: "Belum Ditangani",
-    value: 6,
-    bg: "#FF3B30",
-    icon: <img className="w-10 h-10 object-contain" src="img/logo-jam-pasir.svg" alt="" />,
-  },
-  {
-    label: "Sedang diproses",
-    value: 5,
-    bg: "#FFCC00",
-    icon: <img className="w-10 h-10 object-contain" src="img/logo-setting.svg" alt="" />,
-  },
-  {
-    label: "Selesai minggu ini",
-    value: 31,
-    bg: "#34C759",
-    icon: <img className="w-10 h-10 object-contain" src="img/logo-centang.svg" alt="" />,
-  },
-];
+export default function StatCards({ stats }) {
+  const CARDS = [
+    {
+      label: "Laporan hari ini",
+      value: stats?.laporanHariIni || 0,
+      bg: "#007AFF",
+      icon: <img className="w-10 h-10 object-contain" src="img/logo-laporan.svg" alt="" />,
+    },
+    {
+      label: "Belum Ditangani",
+      value: stats?.belumDitangani || 0,
+      bg: "#FF3B30",
+      icon: <img className="w-10 h-10 object-contain" src="img/logo-jam-pasir.svg" alt="" />,
+    },
+    {
+      label: "Sedang diproses",
+      value: stats?.sedangDiproses || 0,
+      bg: "#FFCC00",
+      icon: <img className="w-10 h-10 object-contain" src="img/logo-setting.svg" alt="" />,
+    },
+    {
+      label: "Selesai minggu ini",
+      value: stats?.selesaiMingguIni || 0,
+      bg: "#34C759",
+      icon: <img className="w-10 h-10 object-contain" src="img/logo-centang.svg" alt="" />,
+    },
+  ];
 
-function AnimatedValue({ target, delay }) {
-  const [val, setVal] = useState(0);
-  useEffect(() => {
-    const t = setTimeout(() => {
-      let cur = 0;
-      const step = Math.ceil(target / 20);
-      const iv = setInterval(() => {
-        cur = Math.min(cur + step, target);
-        setVal(cur);
-        if (cur >= target) clearInterval(iv);
-      }, 40);
-      return () => clearInterval(iv);
-    }, delay);
-    return () => clearTimeout(t);
-  }, [target, delay]);
-  return <>{val}</>;
-}
-
-export default function StatCards() {
   return (
     <section
       className="h-[124px] px-12 bg-collection-1-secondary rounded-[20px] overflow-hidden shadow-[inset_0px_4px_4px_#00000040] flex flex-col justify-center relative self-stretch w-full flex-[0_0_auto]"
@@ -75,7 +57,7 @@ export default function StatCards() {
                 {card.label}
               </h2>
               <p className="[font-family:'Helvetica_Neue-Light',Helvetica] font-light text-collection-1-secondary text-2xl leading-none whitespace-nowrap">
-                <AnimatedValue target={card.value} delay={i * 150 + 200} />
+                {card.value}
               </p>
             </div>
             <div

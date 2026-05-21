@@ -8,14 +8,14 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
-const weeklyData = [
-  { day: "Senin", laporan: 9 },
-  { day: "Selasa", laporan: 12 },
-  { day: "Rabu", laporan: 8 },
-  { day: "Kamis", laporan: 16 },
-  { day: "Jumat", laporan: 13 },
-  { day: "Sabtu", laporan: 6 },
-  { day: "Minggu", laporan: 4 },
+const fallbackWeeklyData = [
+  { day: "Senin", laporan: 0 },
+  { day: "Selasa", laporan: 0 },
+  { day: "Rabu", laporan: 0 },
+  { day: "Kamis", laporan: 0 },
+  { day: "Jumat", laporan: 0 },
+  { day: "Sabtu", laporan: 0 },
+  { day: "Minggu", laporan: 0 },
 ];
 
 const CustomTooltip = ({ active, payload, label }) => {
@@ -30,7 +30,13 @@ const CustomTooltip = ({ active, payload, label }) => {
   return null;
 };
 
-export default function LineChart() {
+export default function LineChart({ data }) {
+  // If API data is an array of objects like { day: "Senin", total: 9 }, map it.
+  const chartData = data && data.length > 0 ? data.map(item => ({
+    day: item.day || item.hari || "Unknown",
+    laporan: item.laporan || item.total || item.value || 0
+  })) : fallbackWeeklyData;
+
   return (
     <article className="flex flex-col w-[717.46px] items-center gap-8 p-8 relative bg-white rounded-[20px] overflow-hidden shadow-[0px_4px_4px_#00000040]">
       <h2 className="relative flex items-center text-center justify-center self-stretch mt-[-1.00px] font-bold text-[#1c1c1c] text-2xl tracking-[-0.35px] leading-5">
@@ -40,7 +46,7 @@ export default function LineChart() {
       <div className="w-full" style={{ height: 226 }}>
         <ResponsiveContainer width="100%" height="100%">
           <ReLineChart
-            data={weeklyData}
+            data={chartData}
             margin={{ top: 8, right: 8, left: -28, bottom: 0 }}
           >
             <defs>
@@ -86,7 +92,7 @@ export default function LineChart() {
         <div className="flex items-center justify-center row-[1/2] col-[1/2] justify-self-center self-center w-full h-[34px] font-bold text-[#1c1c1c] text-base text-center">
           Hari
         </div>
-        {weeklyData.map((d, i) => (
+        {chartData.map((d, i) => (
           <div
             key={d.day}
             className="flex items-center justify-center w-full h-[34px] font-normal text-[#1c1c1c] text-sm text-center"
@@ -104,7 +110,7 @@ export default function LineChart() {
         <div className="flex items-center justify-center row-[3/4] col-[1/2] justify-self-center self-center w-full h-[34px] font-bold text-[#1c1c1c] text-base text-center">
           Laporan
         </div>
-        {weeklyData.map((d, i) => (
+        {chartData.map((d, i) => (
           <div
             key={`val-${d.day}`}
             className="flex items-center justify-center w-full h-[34px] font-normal text-[#1c1c1c] text-sm text-center"

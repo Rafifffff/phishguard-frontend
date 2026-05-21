@@ -61,7 +61,7 @@ const DUMMY_TICKET = {
   }
 };
 
-const BASE_URL = "https://be-phisguard-production.up.railway.app/api";
+const BASE_URL = "https://adorable-tranquility-production-f56c.up.railway.app/api";
 
 export default function UserTicketDetailPage({ ticketId, onBack }) {
   const [ticketData, setTicketData] = useState(DUMMY_TICKET);

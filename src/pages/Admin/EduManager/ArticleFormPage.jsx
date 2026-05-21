@@ -21,13 +21,22 @@ export default function ArticleFormPage({
 }) {
   const isEdit = mode === "edit";
 
-  const [judul,      setJudul]      = useState(initialData.title    ?? "");
-  const [kategori,   setKategori]   = useState(initialData.category ?? "");
+  const [judul,      setJudul]      = useState(initialData.judul ?? initialData.title ?? "");
+  const [kategori,   setKategori]   = useState(initialData.kategori_artikel ?? initialData.category ?? "");
   const [gambar,     setGambar]     = useState(null);
-  const [gambarName, setGambarName] = useState(initialData.imageSrc ? initialData.imageSrc.split("/").pop() : "");
-  const [altText,    setAltText]    = useState(initialData.imageCaption ?? "");
-  const [isi,        setIsi]        = useState(initialData.content  ?? "");
-  const [rangkuman,  setRangkuman]  = useState(initialData.excerpt  ?? "");
+  
+  // Try to extract image name from URL or Base64 if possible, or just use a default
+  const getInitialImageName = () => {
+    const imgStr = initialData.gambar ?? initialData.imageSrc;
+    if (!imgStr) return "";
+    if (imgStr.startsWith("data:image")) return "gambar_saat_ini.png";
+    return imgStr.split("/").pop() || "gambar_saat_ini.png";
+  };
+  const [gambarName, setGambarName] = useState(getInitialImageName());
+  
+  const [altText,    setAltText]    = useState(initialData.alt_text ?? initialData.imageCaption ?? "");
+  const [isi,        setIsi]        = useState(initialData.isi_artikel ?? initialData.content ?? "");
+  const [rangkuman,  setRangkuman]  = useState(initialData.rangkuman ?? initialData.excerpt ?? "");
 
   const [touched,  setTouched]  = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);

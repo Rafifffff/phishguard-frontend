@@ -45,23 +45,52 @@ const IconDate = () => (
 );
 
 export default function TriageDetailPage({ ticket, onBack }) {
-  const t = ticket || {
-    id: "PH-20260427-8F21CD44",
-    status: "Belum Ditangani",
-    statusColor: "red",
-    tanggalLaporan: "27 Apr 2026 | 09:14",
-    riskScore: 90,
-    namaPelapor: "Usman Iskandar",
-    kontak: "081377894521",
-    channelChat: "WhatsApp",
-    waktuKejadian: "18 April 2026",
-    sudahBerinteraksi: "Sudah",
-    urlMencurigakan: "https://cimb-verifikasi-akun-secure.my.id/login",
-    uploadScreenshot: "screenshot_chat_cimb_18042026.png",
-    teksChat:
-      "Halo nasabah CIMB Niaga, akun Anda terdeteksi aktivitas tidak wajar dan akan diblokir sementara.\nSegera lakukan verifikasi melalui link berikut untuk menghindari penonaktifan permanen:\nhttps://cimb-verifikasi-akun-secure.my.id/login\n\nJika tidak diverifikasi dalam 1x24 jam, akses mobile banking Anda akan dinonaktifkan.\nTerima kasih.\nCIMB Niaga Customer Service",
-    auditLogs: [],
+  const getStatus = (report) => {
+    if (!report || !report.admin_actions || report.admin_actions.length === 0) return "Belum Ditangani";
+    const lastAction = report.admin_actions[report.admin_actions.length - 1];
+    const isClosed = 
+      lastAction.hasil_keputusan === "Confirm Valid Phishing" || 
+      lastAction.hasil_keputusan === "False Positive" || 
+      lastAction.selesaikanTiket || 
+      lastAction.selesaikan_tiket;
+    return isClosed ? "Selesai" : "Diproses";
   };
+
+  const getStatusColor = (status) => {
+    if (status === "Belum Ditangani") return "red";
+    if (status === "Diproses") return "yellow";
+    return "green";
+  };
+
+  const currentStatus = getStatus(ticket);
+  
+  const mappedTicket = ticket ? {
+    id: ticket.ticket || `PH-${ticket.id}`,
+    originalId: ticket.id,
+    status: currentStatus,
+    statusColor: getStatusColor(currentStatus),
+    tanggalLaporan: new Date(ticket.created_at).toLocaleDateString("id-ID", { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute:'2-digit' }),
+    riskScore: ticket.ml_result?.risk_score || 0,
+    namaPelapor: ticket.reporter_name || "Unknown",
+    kontak: ticket.region || "-",
+    akunPengirim: ticket.sender_account || "-",
+    channelChat: ticket.channel_chat || "-",
+    waktuKejadian: new Date(ticket.created_at).toLocaleDateString("id-ID", { day: 'numeric', month: 'long', year: 'numeric' }),
+    sudahBerinteraksi: ticket.interaksi ? "Sudah" : "Belum",
+    urlMencurigakan: ticket.url || "-",
+    uploadScreenshot: ticket.evidence_text ? "Ada bukti tambahan" : "-",
+    teksChat: ticket.chat_text || "-",
+    auditLogs: ticket.admin_actions?.map(action => ({
+      id: action.id,
+      actor: "Admin@Phishguard",
+      time: new Date(action.created_at).toLocaleDateString("id-ID", { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute:'2-digit' }),
+      kategori: action.kategori || "Lainnya",
+      status: action.hasil_keputusan === "Confirm Valid Phishing" || action.hasil_keputusan === "False Positive" || action.selesaikanTiket || action.selesaikan_tiket ? "Selesai" : "Diproses",
+      catatan: action.catatan
+    })) || []
+  } : {};
+
+  const t = mappedTicket;
 
   const [ticketStatusColor, setTicketStatusColor] = useState(t.statusColor);
   const [auditLogs, setAuditLogs] = useState(t.auditLogs || []);
@@ -201,7 +230,7 @@ export default function TriageDetailPage({ ticket, onBack }) {
         <TicketDetailCard ticket={t} />
 
         <AdminResponseForm 
-          ticketId={t.id} 
+          ticketId={t.originalId} 
           kontak={t.kontak} 
           onSave={handleSaveResponse} 
         />

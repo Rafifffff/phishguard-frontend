@@ -22,6 +22,18 @@ import EduManagerPage      from "./pages/Admin/EduManager/EduManagerPage";
 import ArticleFormPage     from "./pages/Admin/EduManager/ArticleFormPage";
 import ArticleAdminDetailPage from "./pages/Admin/EduManager/ArticleAdminDetailPage";
 
+import { createArticle, updateArticle, deleteArticle } from "./services/api";
+
+// Fungsi untuk mengonversi File menjadi Base64 string
+const convertToBase64 = (file) => {
+  return new Promise((resolve, reject) => {
+    const fileReader = new FileReader();
+    fileReader.readAsDataURL(file);
+    fileReader.onload = () => resolve(fileReader.result);
+    fileReader.onerror = (error) => reject(error);
+  });
+};
+
 export default function App() {
   const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(() => localStorage.getItem("pg_isAdminLoggedIn") === "true");
   const [selectedTicketId, setSelectedTicketId] = useState(() => localStorage.getItem("pg_selectedTicketId") || null);
@@ -87,10 +99,16 @@ export default function App() {
     handleNavigation("lapor-sukses"); 
   };
 
-  const handleAdminLogin = async ({ username, password }) => {
-    if (username === "admin" && password === "admin123") {
+  const handleAdminLogin = async (response) => {
+    // Response dari API login sudah valid (tidak throw error)
+    // Jika sampai sini berarti login berhasil
+    if (response && response.admin) {
       setIsAdminLoggedIn(true);
       handleAdminNavigation("dashboard"); 
+    } else if (response && response.message === "Login success") {
+      // Fallback jika response format berbeda
+      setIsAdminLoggedIn(true);
+      handleAdminNavigation("dashboard");
     } else {
       throw new Error("Kredensial tidak valid");
     }
@@ -132,8 +150,29 @@ export default function App() {
             <ArticleFormPage 
               mode="tambah"
               onBack={() => handleAdminNavigation("edu")}
-              onSubmit={(data) => {
-                alert("Artikel ditambahkan (Simulasi)"); handleAdminNavigation("edu");
+              onSubmit={async (data) => {
+                try {
+                  let gambarString = "";
+                  if (data.gambar instanceof File) {
+                    gambarString = await convertToBase64(data.gambar);
+                  }
+
+                  const payload = {
+                    judul: data.judul,
+                    kategori_artikel: data.kategori,
+                    gambar: gambarString,
+                    alt_text: data.altText,
+                    isi_artikel: data.isi,
+                    rangkuman: data.rangkuman
+                  };
+                  
+                  await createArticle(payload);
+                  alert("Artikel berhasil ditambahkan!");
+                  handleAdminNavigation("edu");
+                } catch (error) {
+                  console.error("Gagal menambah artikel:", error);
+                  alert("Gagal menambahkan artikel: " + error.message);
+                }
               }}
             />
           )}
@@ -142,11 +181,46 @@ export default function App() {
               mode="edit"
               initialData={adminSelectedArticle}
               onBack={() => handleAdminNavigation("edu-detail")} 
-              onSubmit={(data) => {
-                alert("Artikel diedit (Simulasi)"); handleAdminNavigation("edu-detail");
+              onSubmit={async (data) => {
+                try {
+                  let gambarString = data.gambar; // Existing value if not updated
+                  if (data.gambar instanceof File) {
+                    gambarString = await convertToBase64(data.gambar);
+                  } else {
+                    gambarString = data.gambarName || data.gambar || "";
+                  }
+
+                  const payload = {
+                    judul: data.judul,
+                    kategori_artikel: data.kategori,
+                    gambar: gambarString,
+                    alt_text: data.altText,
+                    isi_artikel: data.isi,
+                    rangkuman: data.rangkuman
+                  };
+                  
+                  await updateArticle(adminSelectedArticle.id, payload);
+                  alert("Artikel berhasil diubah!");
+                  
+                  // Update the selected article state so the detail page reflects the change
+                  setAdminSelectedArticle({ ...adminSelectedArticle, ...payload });
+                  handleAdminNavigation("edu-detail");
+                } catch (error) {
+                  console.error("Gagal mengubah artikel:", error);
+                  alert("Gagal mengubah artikel: " + error.message);
+                }
               }}
-              onDelete={() => {
-                alert("Artikel dihapus (Simulasi)"); handleAdminNavigation("edu");
+              onDelete={async () => {
+                if (window.confirm("Apakah Anda yakin ingin menghapus artikel ini?")) {
+                  try {
+                    await deleteArticle(adminSelectedArticle.id);
+                    alert("Artikel berhasil dihapus!");
+                    handleAdminNavigation("edu");
+                  } catch (error) {
+                    console.error("Gagal menghapus artikel:", error);
+                    alert("Gagal menghapus artikel: " + error.message);
+                  }
+                }
               }}
             />
           )}
@@ -175,16 +249,19 @@ export default function App() {
           <MessageCheckerPage 
             initialMessage={initialCheckMessage} 
             onNavigate={handleNavigation}
-            onSubmitCheck={(formData) => {
+            onSubmitCheck={({ formData, backendResult }) => {
+              const ml = backendResult?.ml_result || {};
+              const isPhish = ml.label?.toLowerCase() === "phishing";
+              
               setAnalysisData({
                  channel: formData.channel || "-",
                  sender: formData.sender || "-",
                  url: formData.url || "-",
                  message: formData.message,
-                 score: 90,
-                 verdict: "PENIPUAN (Phishing)",
-                 isPhishing: true,
-                 indicators: ["Urgensi tinggi", "Mengarahkan ke link eksternal"],
+                 score: ml.risk_score || (isPhish ? 90 : 10),
+                 verdict: isPhish ? "PENIPUAN (Phishing)" : "AMAN (Safe)",
+                 isPhishing: isPhish,
+                 indicators: ml.reason ? [ml.reason] : (isPhish ? ["Urgensi tinggi", "Mengarahkan ke link eksternal"] : ["Tidak ada indikasi berbahaya"]),
                  urlDomain: formData.url ? "domain-mencurigakan.com" : "-",
                  urlStatus: formData.url ? "Tidak terverifikasi / mencurigakan" : "-"
               });

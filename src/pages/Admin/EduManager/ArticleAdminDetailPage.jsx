@@ -2,14 +2,14 @@ import React from "react";
 
 export default function ArticleAdminDetailPage({ article, onBack, onEdit }) {
   const safeArticle = {
-    title: article?.title || "-",
-    category: article?.category || "-",
-    excerpt: article?.excerpt || "-",
-    date: article?.date || "-",
-    readTime: article?.readTime || "-",
-    imageSrc: article?.imageSrc || "",
-    imageCaption: article?.imageCaption || "-",
-    content: article?.content || "-",
+    title: article?.judul || article?.title || "-",
+    category: article?.kategori_artikel || article?.category || "-",
+    excerpt: article?.rangkuman || article?.excerpt || "-",
+    date: article?.created_at ? new Date(article.created_at).toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' }) : article?.date || "-",
+    readTime: article?.readTime || "3 Menit",
+    imageSrc: article?.gambar || article?.imageSrc || "",
+    imageCaption: article?.alt_text || article?.imageCaption || "-",
+    content: article?.isi_artikel || article?.content || "-",
   };
 
   const paragraphs = safeArticle.content

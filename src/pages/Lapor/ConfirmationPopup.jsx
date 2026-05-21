@@ -4,7 +4,7 @@ import RadioOption  from "../../components/ui/RadioOption";
 import Button       from "../../components/ui/Button";
 
 export default function ConfirmationPopup({ data = {}, onEdit, onSubmit, loading = false }) {
-  const { nama = "", channel = "", interaksi = "sudah", teksChat = "", kontak = "" } = data;
+  const { reporter_name = "", channel_chat = "", interaksi = true, chat_text = "", region = "" } = data;
 
   useEffect(() => {
     document.body.style.overflow = "hidden";
@@ -52,20 +52,20 @@ export default function ConfirmationPopup({ data = {}, onEdit, onSubmit, loading
 
               <FormField label="Nama Pelapor" required>
                 <div className="flex h-[38px] items-center gap-2.5 px-4 py-2 self-stretch w-full bg-[rgba(249,249,249,1)] rounded-[5px] border border-solid border-[rgba(119,119,119,1)] shadow-[inset_0px_4px_4px_#00000040]">
-                  <span className="[font-family:'Helvetica_Neue-Regular',Helvetica] font-normal text-[rgba(26,28,28,1)] text-base tracking-[-0.35px] leading-5">{nama}</span>
+                  <span className="[font-family:'Helvetica_Neue-Regular',Helvetica] font-normal text-[rgba(26,28,28,1)] text-base tracking-[-0.35px] leading-5">{reporter_name}</span>
                 </div>
               </FormField>
 
               <FormField label="Channel Chat" required>
                 <div className="flex h-[38px] items-center gap-2.5 px-4 py-2 self-stretch w-full bg-[rgba(249,249,249,1)] rounded-[5px] border border-solid border-[rgba(119,119,119,1)] shadow-[inset_0px_4px_4px_#00000040]">
-                  <span className="[font-family:'Helvetica_Neue-Regular',Helvetica] font-normal text-[rgba(26,28,28,1)] text-base tracking-[-0.35px] leading-5 capitalize">{channel}</span>
+                  <span className="[font-family:'Helvetica_Neue-Regular',Helvetica] font-normal text-[rgba(26,28,28,1)] text-base tracking-[-0.35px] leading-5 capitalize">{channel_chat}</span>
                 </div>
               </FormField>
 
               <FormField label="Apakah Anda sudah berinteraksi dengan link/pesan ini?" required>
                 <div className="flex items-center gap-4 self-stretch w-full pointer-events-none">
-                  <RadioOption label="Sudah" value="sudah" selected={interaksi === "sudah"} onChange={() => {}} />
-                  <RadioOption label="Belum" value="belum" selected={interaksi === "belum"} onChange={() => {}} />
+                  <RadioOption label="Sudah" value={true} selected={interaksi === true} onChange={() => {}} />
+                  <RadioOption label="Belum" value={false} selected={interaksi === false} onChange={() => {}} />
                 </div>
               </FormField>
             </div>
@@ -75,7 +75,7 @@ export default function ConfirmationPopup({ data = {}, onEdit, onSubmit, loading
                 <div className="relative self-stretch w-full">
                   <textarea
                     readOnly
-                    value={teksChat}
+                    value={chat_text}
                     className="min-h-[260px] resize-none w-full px-4 py-2 bg-[rgba(249,249,249,1)] rounded-[5px] border border-solid border-[rgba(119,119,119,1)] shadow-[inset_0px_4px_4px_#00000040] [font-family:'Helvetica_Neue-Regular',Helvetica] font-normal text-[rgba(26,28,28,1)] text-base tracking-[-0.35px] leading-5 outline-none"
                   />
                   <div className="absolute right-1.5 bottom-1.5 pointer-events-none opacity-30">
@@ -93,7 +93,7 @@ export default function ConfirmationPopup({ data = {}, onEdit, onSubmit, loading
             <div className="flex flex-col items-start gap-6 sm:gap-8 relative flex-1 grow w-full">
               <FormField label="Kontak untuk dihubungi (Email / No. HP)" required>
                 <div className="flex h-[38px] items-center gap-2.5 px-4 py-2 self-stretch w-full bg-[rgba(249,249,249,1)] rounded-[5px] border border-solid border-[rgba(119,119,119,1)] shadow-[inset_0px_4px_4px_#00000040]">
-                  <span className="[font-family:'Helvetica_Neue-Regular',Helvetica] font-normal text-[rgba(26,28,28,1)] text-base tracking-[-0.35px] leading-5">{kontak}</span>
+                  <span className="[font-family:'Helvetica_Neue-Regular',Helvetica] font-normal text-[rgba(26,28,28,1)] text-base tracking-[-0.35px] leading-5">{region}</span>
                 </div>
               </FormField>
             </div>
